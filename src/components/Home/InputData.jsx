@@ -25,7 +25,7 @@ useEffect(() =>{
     if (Data.title === "" || Data.desc === "") {
       alert("All fields are required");
     } else {
-      await axios.post("https://task-backend-tan.vercel.app/api/v2/create-task", Data, {
+      await axios.post("http://localhost:1000/api/v2/create-task", Data, {
         headers,
       });
       setData({ title: "", desc: "" });
@@ -36,7 +36,7 @@ useEffect(() =>{
     if (Data.title === "" || Data.desc === "") {
         alert("All fields are required");
       } else {
-        await axios.put(`https://task-backend-tan.vercel.app/api/v2/update-task/${UpdatedData.id}`, Data, {
+        await axios.put(`http://localhost:1000/api/v2/update-task/${UpdatedData.id}`, Data, {
           headers,
         });
         setUpdatedData({

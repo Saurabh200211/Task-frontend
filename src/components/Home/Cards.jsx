@@ -13,7 +13,7 @@ const Cards = ( {home, setInputDiv, data, setUpdatedData}) => {
     const handleCompleteTask = async(id) => {
         try{
             await axios.put(
-                `https://task-backend-tan.vercel.app/api/v2/update-complete-task/${id}`,
+                `http://localhost:1000/api/v2/update-complete-task/${id}`,
                 {},
              {headers}
             );
@@ -27,7 +27,7 @@ const Cards = ( {home, setInputDiv, data, setUpdatedData}) => {
     const handleImportant = async(id) => {
         try{
           const response = await axios.put(
-                `https://task-backend-tan.vercel.app/api/v2/update-imp-task/${id}`,
+                `http://localhost:1000/api/v2/update-imp-task/${id}`,
                 {},
              {headers}
             );
@@ -43,7 +43,7 @@ const Cards = ( {home, setInputDiv, data, setUpdatedData}) => {
     const deleteTask = async(id) => {
         try{
           const response = await axios.delete(
-                `https://task-backend-tan.vercel.app/api/v2/delete-task/${id}`,
+                `http://localhost:1000/api/v2/delete-task/${id}`,
                 
              {headers}
             );
