@@ -19,7 +19,7 @@ const AllTasks =() =>{
 };
   useEffect(() =>{
           const fetch = async()  =>{
-       const response =   await axios.get("http://localhost:1000/api/v2/get-all-tasks",
+       const response =   await axios.get("https://task-backend-tan.vercel.app/v2/get-all-tasks",
              { headers }
           ); 
           setData(response.data.data);

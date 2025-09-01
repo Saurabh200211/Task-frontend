@@ -8,7 +8,7 @@ const CompletedTasks = () =>{
     };
       useEffect(() =>{
               const fetch = async()  =>{
-           const response =   await axios.get("http://localhost:1000/api/v2/get-complete-tasks",
+           const response =   await axios.get("https://task-backend-tan.vercel.app/api/v2/get-complete-tasks",
                  { headers }
               ); 
               setData(response.data.data);
