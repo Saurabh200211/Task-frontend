@@ -27,7 +27,7 @@ const Cards = ( {home, setInputDiv, data, setUpdatedData}) => {
     const handleImportant = async(id) => {
         try{
           const response = await axios.put(
-                `https://task-backend-tan.vercel.app/api/v2/update-imp-task/${id}`,
+                `https://task-backend-tan.vercel.app/v2/update-imp-task/${id}`,
                 {},
              {headers}
             );

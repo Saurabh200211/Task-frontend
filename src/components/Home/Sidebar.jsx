@@ -49,7 +49,7 @@ const history = useNavigate();
 
         useEffect(() =>{
         const fetch = async()  =>{
-     const response =   await axios.get("https://task-backend-tan.vercel.app//api/v2/get-all-tasks",
+     const response =   await axios.get("https://task-backend-tan.vercel.app/api/v2/get-all-tasks",
            { headers }
         ); 
         setData(response.data.data);
