@@ -1,85 +1,133 @@
-import React, { useEffect, useState } from 'react';
-import { CgNotes } from "react-icons/cg";
-import { MdLabelImportant } from "react-icons/md";
-import { FaCheckDouble } from "react-icons/fa";
-import { TbNotebookOff } from "react-icons/tb";
-import { Link, useNavigate } from 'react-router-dom';
-import {useDispatch} from "react-redux";
-import { authActions} from "../../store/auth";
+import React, { useEffect, useState } from "react";
+import { RxCross2 } from "react-icons/rx";
 import axios from "axios";
 
-const Sidebar = () => {
-const dispatch = useDispatch();
-const history = useNavigate();
-    const data = [
-        {
-        title: "All task",
-        icon: <CgNotes />,
-        link: "/",
-        },
+const InputData = ({ InputDiv, setInputDiv, UpdatedData, setUpdatedData }) => {
+  const [Data, setData] = useState({
+    title: "",
+    desc: "",
+  });
 
-    {
-        title: "Important tasks",
-        icon: <MdLabelImportant />,
-        link: "/importantTasks",
-            },
+  useEffect(() => {
+    setData({ title: UpdatedData.title, desc: UpdatedData.desc });
+  }, [UpdatedData]);
 
-    {
-        title: "Completed tasks",
-        icon: <FaCheckDouble />,
-        link: "/completedTasks",
-                },
-    {
-        title: "Incompleted tasks",
-        icon: <TbNotebookOff />,
-        link: "/incompletedTasks",
-                    },
-                ];
-       const [Data, setData] = useState();
-        const logout =()  =>{
-           dispatch(authActions.logout());
-           localStorage.clear("id");
-           localStorage.clear("token");
-           dispatch(authActions.logout());
-           history("/signup");
-        };
-        const headers = {id:localStorage.getItem("id"), 
-            authorization: `Bearer ${localStorage.getItem("token")}`,
-        };
+  const headers = {
+    id: localStorage.getItem("id"),
+    authorization: `Bearer ${localStorage.getItem("token")}`,
+  };
 
-        useEffect(() =>{
-        const fetch = async()  =>{
-     const response =   await axios.get("https://task-backend-tan.vercel.app/api/v2/get-all-tasks",
-           { headers }
-        ); 
-        setData(response.data.data);
-        };
-        if (localStorage.getItem("id") && localStorage.getItem("token")){
-            fetch();
-          } 
-        });
-return (
-<>
-   {Data && (
-    <div>
-        <h2 className='text-xl font-semibold'>{Data.username}</h2>
-        <h4 className='my-1 text-gray-400'>{Data.email}</h4>
-        <hr />
-    </div>
-   )}
-    <div>
-    {data.map((items, i) => (
-   <Link
-    to={items.link} 
-       key={i}
-        className='my-2 flex items-center hover:bg-gray-600 p-2 rounded transition-all duration-300' 
-        > {items.icon} &nbsp; {items.title} 
-         </Link> 
-    ))}</div>
-    <div>
-        <button className='bg-gray-600 w-full p-2 rounded' onClick={logout}>Log Out</button>
-    </div>
-</>
-);
+  const change = (e) => {
+    const { name, value } = e.target;
+    setData({ ...Data, [name]: value });
+  };
+
+  const submitData = async () => {
+    if (Data.title === "" || Data.desc === "") {
+      alert("All fields are required");
+    } else {
+      await axios.post(
+        "https://task-backend-tan.vercel.app/api/v2/create-task",
+        Data,
+        { headers }
+      );
+      setData({ title: "", desc: "" });
+      setInputDiv("hidden");
+    }
+  };
+
+  const UpdateTask = async () => {
+    if (Data.title === "" || Data.desc === "") {
+      alert("All fields are required");
+    } else {
+      await axios.put(
+        `https://task-backend-tan.vercel.app/api/v2/update-task/${UpdatedData.id}`,
+        Data,
+        { headers }
+      );
+      setUpdatedData({
+        id: "",
+        title: "",
+        desc: "",
+      });
+      setData({ title: "", desc: "" });
+      setInputDiv("hidden");
+    }
+  };
+
+  return (
+    <>
+      {/* Overlay background */}
+      <div
+        className={`${InputDiv} top-0 left-0 h-screen w-full bg-black bg-opacity-70 fixed`}
+      ></div>
+
+      {/* Input Modal */}
+      <div
+        className={`${InputDiv} top-0 left-0 flex items-center justify-center h-screen w-full fixed`}
+      >
+        <div className="w-11/12 sm:w-3/4 md:w-2/3 lg:w-2/5 xl:w-1/3 bg-gray-900 p-6 rounded-lg shadow-lg">
+          {/* Close Button */}
+          <div className="flex justify-end">
+            <button
+              className="text-2xl text-white hover:text-red-400 transition-colors"
+              onClick={() => {
+                setInputDiv("hidden");
+                setData({
+                  title: "",
+                  desc: "",
+                });
+                setUpdatedData({
+                  id: "",
+                  title: "",
+                  desc: "",
+                });
+              }}
+            >
+              <RxCross2 />
+            </button>
+          </div>
+
+          {/* Title Input */}
+          <input
+            type="text"
+            placeholder="Title"
+            name="title"
+            className="px-3 py-2 rounded w-full bg-gray-700 my-3 text-white text-base sm:text-lg"
+            value={Data.title}
+            onChange={change}
+          />
+
+          {/* Description Input */}
+          <textarea
+            name="desc"
+            rows="5"
+            placeholder="Description..."
+            className="px-3 py-2 rounded w-full bg-gray-700 my-3 text-white text-base sm:text-lg resize-none"
+            value={Data.desc}
+            onChange={change}
+          />
+
+          {/* Submit / Update Button */}
+          {UpdatedData.id === "" ? (
+            <button
+              className="w-full px-3 py-2 bg-blue-500 rounded text-white text-lg font-semibold hover:bg-blue-600 transition-colors"
+              onClick={submitData}
+            >
+              Submit
+            </button>
+          ) : (
+            <button
+              className="w-full px-3 py-2 bg-green-500 rounded text-white text-lg font-semibold hover:bg-green-600 transition-colors"
+              onClick={UpdateTask}
+            >
+              Update
+            </button>
+          )}
+        </div>
+      </div>
+    </>
+  );
 };
-export default Sidebar;
+
+export default InputData;
