@@ -130,4 +130,4 @@ const InputData = ({ InputDiv, setInputDiv, UpdatedData, setUpdatedData }) => {
   );
 };
 
-export default Sidebar;
+export default InputData;
