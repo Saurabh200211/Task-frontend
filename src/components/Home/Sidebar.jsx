@@ -2,16 +2,14 @@ import React, { useEffect, useState } from "react";
 import { RxCross2 } from "react-icons/rx";
 import axios from "axios";
 
-const InputData = ({ InputDiv, setInputDiv, UpdatedData = {}, setUpdatedData }) => {
+const InputData = ({ InputDiv, setInputDiv, UpdatedData, setUpdatedData }) => {
   const [Data, setData] = useState({
     title: "",
     desc: "",
   });
 
   useEffect(() => {
-    if (UpdatedData?.title || UpdatedData?.desc) {
-      setData({ title: UpdatedData.title || "", desc: UpdatedData.desc || "" });
-    }
+    setData({ title: UpdatedData.title, desc: UpdatedData.desc });
   }, [UpdatedData]);
 
   const headers = {
@@ -43,7 +41,7 @@ const InputData = ({ InputDiv, setInputDiv, UpdatedData = {}, setUpdatedData }) 
       alert("All fields are required");
     } else {
       await axios.put(
-        `https://task-backend-tan.vercel.app/api/v2/update-task/${UpdatedData?.id}`,
+        `https://task-backend-tan.vercel.app/api/v2/update-task/${UpdatedData.id}`,
         Data,
         { headers }
       );
@@ -111,7 +109,7 @@ const InputData = ({ InputDiv, setInputDiv, UpdatedData = {}, setUpdatedData }) 
           />
 
           {/* Submit / Update Button */}
-          {!UpdatedData?.id ? (
+          {UpdatedData.id === "" ? (
             <button
               className="w-full px-3 py-2 bg-blue-500 rounded text-white text-lg font-semibold hover:bg-blue-600 transition-colors"
               onClick={submitData}
