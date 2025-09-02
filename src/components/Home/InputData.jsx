@@ -118,4 +118,4 @@ const Cards = ({ home, setInputDiv, data, setUpdatedData }) => {
     </div>
   );
 };
-export default Cards;
+export default InputData;
