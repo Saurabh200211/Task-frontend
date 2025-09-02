@@ -1,121 +1,122 @@
-import React from "react";
-import { CiHeart } from "react-icons/ci";
-import { FaEdit, FaHeart } from "react-icons/fa";
-import { MdDelete } from "react-icons/md";
-import { IoAddCircleSharp } from "react-icons/io5";
+import React, { useEffect, useState } from "react";
+import { RxCross2 } from "react-icons/rx";
 import axios from "axios";
 
-const Cards = ({ home, setInputDiv, data, setUpdatedData }) => {
+const InputData = ({ InputDiv, setInputDiv, UpdatedData, setUpdatedData }) => {
+  const [Data, setData] = useState({ 
+    title: "", 
+    desc: "",
+
+   });
+useEffect(() =>{
+    setData({ title: UpdatedData.title, desc: UpdatedData.desc});
+},[UpdatedData]);
   const headers = {
     id: localStorage.getItem("id"),
     authorization: `Bearer ${localStorage.getItem("token")}`,
   };
 
-  const handleCompleteTask = async (id) => {
-    try {
-      await axios.put(
-        `https://task-backend-tan.vercel.app/api/v2/update-complete-task/${id}`,
-        {},
-        { headers }
-      );
-    } catch (error) {
-      console.log(error);
-    }
+  const change = (e) => {
+    const { name, value } = e.target;
+    setData({ ...Data, [name]: value });
   };
 
-  const handleImportant = async (id) => {
-    try {
-      const response = await axios.put(
-        `https://task-backend-tan.vercel.app/v2/update-imp-task/${id}`,
-        {},
-        { headers }
-      );
-      console.log(response.data.message);
-    } catch (error) {
-      console.log(error);
+  const submitData = async () => {
+    if (Data.title === "" || Data.desc === "") {
+      alert("All fields are required");
+    } else {
+      await axios.post("https://task-backend-tan.vercel.app/api/v2/create-task", Data, {
+        headers,
+      });
+      setData({ title: "", desc: "" });
+      setInputDiv("hidden");
     }
-  };
-
-  const handleUpdate = (id, title, desc) => {
-    setInputDiv("fixed");
-    setUpdatedData({ id: id, title: title, desc: desc });
-  };
-
-  const deleteTask = async (id) => {
-    try {
-      const response = await axios.delete(
-        `https://task-backend-tan.vercel.app/api/v2/delete-task/${id}`,
-        { headers }
-      );
-      console.log(response.data.message);
-    } catch (error) {
-      console.log(error);
-    }
+    };
+  const UpdateTask = async() =>{
+    if (Data.title === "" || Data.desc === "") {
+        alert("All fields are required");
+      } else {
+        await axios.put(`https://task-backend-tan.vercel.app/api/v2/update-task/${UpdatedData.id}`, Data, {
+          headers,
+        });
+        setUpdatedData({
+            id:"",
+            title:"",
+            desc:"",
+        });
+        setData({ title: "", desc: "" });
+        setInputDiv("hidden");
+      }
+      
   };
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-4">
-      {data &&
-        data.map((items, i) => (
-          <div
-            key={i}
-            className="flex flex-col justify-between bg-gray-800 rounded-lg p-4 shadow-md hover:shadow-lg transition-all duration-300"
-          >
-            <div>
-              <h3 className="text-lg sm:text-xl font-semibold text-white break-words">
-                {items.title}
-              </h3>
-              <p className="text-gray-300 my-2 text-sm sm:text-base break-words">
-                {items.desc}
-              </p>
-            </div>
-            <div className="mt-4 w-full flex items-center">
-              <button
-                className={`${
-                  items.complete === false
-                    ? "bg-red-400"
-                    : "bg-green-700"
-                } p-2 rounded w-1/2 text-sm sm:text-base text-white`}
-                onClick={() => handleCompleteTask(items._id)}
-              >
-                {items.complete === true ? "Complete" : "Incomplete"}
-              </button>
-              <div className="text-white p-2 w-1/2 text-xl sm:text-2xl font-semibold flex justify-around">
-                <button onClick={() => handleImportant(items._id)}>
-                  {items.important === false ? (
-                    <CiHeart />
-                  ) : (
-                    <FaHeart className="text-red-500" />
-                  )}
-                </button>
+    <>
+      {/* Overlay background */}
+      <div
+        className={`${InputDiv} top-0 left-0 h-screen w-full bg-gray-800 opacity-80 fixed`}
+      ></div>
 
-                {home !== "false" && (
-                  <button
-                    onClick={() =>
-                      handleUpdate(items._id, items.title, items.desc)
-                    }
-                  >
-                    <FaEdit />
-                  </button>
-                )}
-                <button>
-                  <MdDelete onClick={() => deleteTask(items._id)} />
-                </button>
-              </div>
-            </div>
+      {/* Input Modal */}
+      <div
+        className={`${InputDiv} top-0 left-0 flex items-center justify-center h-screen w-full fixed`}
+      >
+        <div className="w-2/6 bg-gray-900 p-4 rounded">
+          <div className="flex justify-end">
+            <button className="text-2xl" 
+            onClick={() => {
+                setInputDiv("hidden");
+                setData({
+                    title:"",
+                    desc:"",
+                });
+                setUpdatedData({
+                    id:"",
+                    title:"",
+                    desc:"",
+                });
+            }}
+            >
+              <RxCross2 />
+            </button>
           </div>
-        ))}
 
-      {home === "true" && (
-        <button
-          className="flex flex-col justify-center items-center bg-gray-800 rounded-lg p-4 text-gray-300 hover:scale-105 hover:cursor-pointer transition-all duration-300 shadow-md"
-          onClick={() => setInputDiv("fixed")}
-        >
-          <IoAddCircleSharp className="text-4xl sm:text-5xl" />
-          <h2 className="text-lg sm:text-2xl mt-4">Add Task</h2>
-        </button>
-      )}
-    </div>
+          {/* Title Input */}
+          <input
+            type="text"
+            placeholder="Title"
+            name="title"
+            className="px-3 py-2 rounded w-full bg-gray-700 my-3 text-white"
+            value={Data.title}
+            onChange={change}
+          />
+
+          {/* Description Input */}
+          <textarea
+            name="desc"
+            cols="30"
+            rows="5"
+            placeholder="Description..."
+            className="px-3 py-2 rounded w-full bg-gray-700 my-3 text-white"
+            value={Data.desc}
+            onChange={change}
+          />
+
+          {/* Submit Button */}
+          {UpdatedData.id === "" ? (
+           <button
+            className="px-3 py-2 bg-blue-400 rounded text-black text-xl font-semibold" onClick={submitData}>
+                Submit
+                </button> 
+              )  : (  <button className="px-3 py-2 bg-blue-400 rounded text-black text-xl font-semibold" onClick={UpdateTask}
+              >
+                Update
+                </button> 
+            )}
+        </div>
+      </div>
+    </>
   );
 };
-export default Cards;
+
+export default InputData;
