@@ -9,7 +9,7 @@ import Signup from './pages/Signup';
 import Login from './pages/Login';
 import { useSelector, useDispatch } from 'react-redux';
 import { authActions } from './store/auth';
-import Portsample from './components/Portsample';
+
 const App = () =>{
 
   const navigate = useNavigate();
@@ -36,7 +36,7 @@ const App = () =>{
     </Route> 
     <Route path="/signup" element={<Signup />} />
     <Route path="/login" element={<Login />} />
-     {/* <Route path="/Portsample" element={<Portsample />} /> */}
+    
 
 </Routes>
 
