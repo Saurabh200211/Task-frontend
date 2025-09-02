@@ -15,15 +15,14 @@ const InputData = ({ InputDiv, setInputDiv, UpdatedData, setUpdatedData }) => {
   }, [UpdatedData]);
 
   const headers = {
-    id: localStorage.getItem("id"),
-    authorization: `Bearer ${localStorage.getItem("token")}`,
+    userId: localStorage.getItem("id"),
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
   };
 
-  // ✅ Fixed change handler (line 33 error)
   const change = (e) => {
-    if (!e || !e.target) return; // safeguard
+    if (!e || !e.target) return;
     const { name, value } = e.target;
-    if (!name) return; // make sure input has a "name"
+    if (!name) return;
     setData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -39,14 +38,21 @@ const InputData = ({ InputDiv, setInputDiv, UpdatedData, setUpdatedData }) => {
       return;
     }
     try {
+      console.log("Submitting data:", Data);
+      console.log("Headers:", headers);
+
       await axios.post(
         "https://task-backend-tan.vercel.app/api/v2/create-task",
-        Data,
+        {
+          title: Data.title,
+          description: Data.desc, // ✅ use "description"
+        },
         { headers }
       );
+
       closeModal();
     } catch (err) {
-      console.error(err);
+      console.error("API Error:", err.response?.data || err.message);
       alert("Failed to create task. Please try again.");
     }
   };
@@ -57,14 +63,20 @@ const InputData = ({ InputDiv, setInputDiv, UpdatedData, setUpdatedData }) => {
       return;
     }
     try {
+      console.log("Updating task:", UpdatedData.id, Data);
+
       await axios.put(
         `https://task-backend-tan.vercel.app/api/v2/update-task/${UpdatedData.id}`,
-        Data,
+        {
+          title: Data.title,
+          description: Data.desc, // ✅ match backend
+        },
         { headers }
       );
+
       closeModal();
     } catch (err) {
-      console.error(err);
+      console.error("API Error:", err.response?.data || err.message);
       alert("Failed to update task. Please try again.");
     }
   };
