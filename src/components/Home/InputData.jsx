@@ -19,9 +19,12 @@ const InputData = ({ InputDiv, setInputDiv, UpdatedData, setUpdatedData }) => {
     authorization: `Bearer ${localStorage.getItem("token")}`,
   };
 
+  // ✅ Fixed change handler (line 33 error)
   const change = (e) => {
+    if (!e || !e.target) return; // safeguard
     const { name, value } = e.target;
-    setData({ ...Data, [name]: value });
+    if (!name) return; // make sure input has a "name"
+    setData((prev) => ({ ...prev, [name]: value }));
   };
 
   const closeModal = () => {
