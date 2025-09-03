@@ -27,7 +27,7 @@ const Login = () => {
       if (Data.username === "" || Data.password === "") {
         alert("All fields are required");
       } else {
-        const response = await axios.post(`${API_URL}/api/v1/log-in`, Data);
+        const response = await axios.post(`${API_URL}/api/v1/sign-in`, Data);
 
         setData({ username: "", password: "" });
 
