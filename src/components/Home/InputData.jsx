@@ -5,6 +5,8 @@ import axios from "axios";
 const InputData = ({ InputDiv, setInputDiv, UpdatedData, setUpdatedData, fetchTasks }) => {
   const [Data, setData] = useState({ title: "", desc: "" });
 
+  const API_URL = process.env.REACT_APP_API_URL; // ✅ use env base URL
+
   useEffect(() => {
     if (UpdatedData) {
       setData({
@@ -15,8 +17,8 @@ const InputData = ({ InputDiv, setInputDiv, UpdatedData, setUpdatedData, fetchTa
   }, [UpdatedData]);
 
   const headers = {
-    userId: localStorage.getItem("id"),
-    Authorization: `Bearer ${localStorage.getItem("token")}`,
+    id: localStorage.getItem("id"), // ✅ changed to match backend (`id` not `userId`)
+    authorization: `Bearer ${localStorage.getItem("token")}`, // ✅ consistent with Cards.js
   };
 
   const change = (e) => {
@@ -38,13 +40,13 @@ const InputData = ({ InputDiv, setInputDiv, UpdatedData, setUpdatedData, fetchTa
     }
     try {
       await axios.post(
-        "https://task-backend-tan.vercel.app/api/v2/create-task",
+        `${API_URL}/api/v2/create-task`, // ✅ dynamic URL
         { title: Data.title, description: Data.desc },
         { headers }
       );
 
       closeModal();
-      fetchTasks(); // ✅ refresh tasks after submit
+      fetchTasks();
     } catch (err) {
       console.error("API Error:", err.response?.data || err.message);
       alert("Failed to create task. Please try again.");
@@ -58,13 +60,13 @@ const InputData = ({ InputDiv, setInputDiv, UpdatedData, setUpdatedData, fetchTa
     }
     try {
       await axios.put(
-        `https://task-backend-tan.vercel.app/api/v2/update-task/${UpdatedData.id}`,
+        `${API_URL}/api/v2/update-task/${UpdatedData.id}`, // ✅ dynamic URL
         { title: Data.title, description: Data.desc },
         { headers }
       );
 
       closeModal();
-      fetchTasks(); // ✅ refresh tasks after update
+      fetchTasks();
     } catch (err) {
       console.error("API Error:", err.response?.data || err.message);
       alert("Failed to update task. Please try again.");

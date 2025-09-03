@@ -18,13 +18,14 @@ const AllTasks = () => {
     authorization: `Bearer ${localStorage.getItem("token")}`,
   };
 
-  // fetch tasks
+  const API_URL = process.env.REACT_APP_API_URL;
+
+  // ✅ fetch tasks
   const fetchTasks = async () => {
     try {
-      const response = await axios.get(
-        "https://task-backend-tan.vercel.app/api/v2/get-all-tasks",
-        { headers }
-      );
+      const response = await axios.get(`${API_URL}/api/v2/get-all-tasks`, {
+        headers,
+      });
       setData(response.data.data);
     } catch (err) {
       console.error("Fetch tasks error:", err.response?.data || err.message);
@@ -39,29 +40,38 @@ const AllTasks = () => {
 
   return (
     <>
-      <div>
-        <div className="w-full flex justify-end p-4 py-2">
-          <button onClick={() => setInputDiv("fixed")}>
-            <IoAddCircleSharp className="text-4xl text-gray-400 hover:text-gray-100 transition-all duration-300" />
+      <div className="w-full">
+        {/* ✅ Add Task button */}
+        <div className="w-full flex justify-end px-3 sm:px-6 py-2 sm:py-4">
+          <button
+            onClick={() => setInputDiv("fixed")}
+            className="flex items-center gap-2 bg-gray-800 px-3 py-2 sm:px-4 sm:py-2 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-all duration-300"
+          >
+            <IoAddCircleSharp className="text-2xl sm:text-3xl" />
+            <span className="hidden sm:inline text-sm sm:text-base font-medium">
+              Add Task
+            </span>
           </button>
         </div>
 
+        {/* ✅ Task Cards */}
         {Data && (
           <Cards
             home={"true"}
             setInputDiv={setInputDiv}
-            data={Data.tasks || Data} // support both shapes
+            data={Data.tasks || Data}
             setUpdatedData={setUpdatedData}
           />
         )}
       </div>
 
+      {/* ✅ Input Modal */}
       <InputData
         InputDiv={InputDiv}
         setInputDiv={setInputDiv}
         UpdatedData={UpdatedData}
         setUpdatedData={setUpdatedData}
-        fetchTasks={fetchTasks} // ✅ pass fetchTasks
+        fetchTasks={fetchTasks}
       />
     </>
   );
