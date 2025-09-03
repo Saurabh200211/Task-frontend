@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { RxCross2 } from "react-icons/rx";
 import axios from "axios";
 
-const InputData = ({ InputDiv, setInputDiv, UpdatedData, setUpdatedData }) => {
+const InputData = ({ InputDiv, setInputDiv, UpdatedData, setUpdatedData, fetchTasks }) => {
   const [Data, setData] = useState({ title: "", desc: "" });
 
   useEffect(() => {
@@ -20,9 +20,8 @@ const InputData = ({ InputDiv, setInputDiv, UpdatedData, setUpdatedData }) => {
   };
 
   const change = (e) => {
-    if (!e || !e.target) return;
+    if (!e?.target?.name) return;
     const { name, value } = e.target;
-    if (!name) return;
     setData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -38,19 +37,14 @@ const InputData = ({ InputDiv, setInputDiv, UpdatedData, setUpdatedData }) => {
       return;
     }
     try {
-      console.log("Submitting data:", Data);
-      console.log("Headers:", headers);
-
       await axios.post(
         "https://task-backend-tan.vercel.app/api/v2/create-task",
-        {
-          title: Data.title,
-          description: Data.desc, // ✅ use "description"
-        },
+        { title: Data.title, description: Data.desc },
         { headers }
       );
 
       closeModal();
+      fetchTasks(); // ✅ refresh tasks after submit
     } catch (err) {
       console.error("API Error:", err.response?.data || err.message);
       alert("Failed to create task. Please try again.");
@@ -63,18 +57,14 @@ const InputData = ({ InputDiv, setInputDiv, UpdatedData, setUpdatedData }) => {
       return;
     }
     try {
-      console.log("Updating task:", UpdatedData.id, Data);
-
       await axios.put(
         `https://task-backend-tan.vercel.app/api/v2/update-task/${UpdatedData.id}`,
-        {
-          title: Data.title,
-          description: Data.desc, // ✅ match backend
-        },
+        { title: Data.title, description: Data.desc },
         { headers }
       );
 
       closeModal();
+      fetchTasks(); // ✅ refresh tasks after update
     } catch (err) {
       console.error("API Error:", err.response?.data || err.message);
       alert("Failed to update task. Please try again.");
@@ -83,15 +73,9 @@ const InputData = ({ InputDiv, setInputDiv, UpdatedData, setUpdatedData }) => {
 
   return (
     <>
-      {/* Overlay */}
-      <div
-        className={`${InputDiv} top-0 left-0 h-screen w-full bg-gray-800 opacity-80 fixed`}
-      ></div>
+      <div className={`${InputDiv} top-0 left-0 h-screen w-full bg-gray-800 opacity-80 fixed`}></div>
 
-      {/* Modal */}
-      <div
-        className={`${InputDiv} top-0 left-0 flex items-center justify-center h-screen w-full fixed`}
-      >
+      <div className={`${InputDiv} top-0 left-0 flex items-center justify-center h-screen w-full fixed`}>
         <div className="w-2/6 bg-gray-900 p-4 rounded">
           <div className="flex justify-end">
             <button className="text-2xl" onClick={closeModal}>
