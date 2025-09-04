@@ -34,7 +34,7 @@ const Signup = () => {
         alert("All fields are required");
       } else {
         const response = await axios.post(
-          "https://task-backend-1wsa.vercel.app/api/v1/sign-in", // ✅ fixed to sign-in
+          "https://task-backend-1wsa.vercel.app/api/v1/sign-up", // ✅ fixed to sign-in
           Data
         );
         setData({ username: "", email: "", password: "", country: "" });
