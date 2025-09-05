@@ -8,13 +8,14 @@ import { useDispatch } from "react-redux";
 import { authActions } from "../../store/auth";
 import axios from "axios";
 
+// Move API_URL outside the component (constant)
+const API_URL = process.env.REACT_APP_API_URL;
+
 const Sidebar = () => {
   const dispatch = useDispatch();
   const history = useNavigate();
   const [Data, setData] = useState();
   const [isOpen, setIsOpen] = useState(false);
-
-  const API_URL = process.env.REACT_APP_API_URL;
 
   const navLinks = [
     { title: "All tasks", icon: <CgNotes />, link: "/" },
@@ -22,11 +23,6 @@ const Sidebar = () => {
     { title: "Completed tasks", icon: <FaCheckDouble />, link: "/completedTasks" },
     { title: "Incompleted tasks", icon: <TbNotebookOff />, link: "/incompletedTasks" },
   ];
-
-  const headers = {
-    id: localStorage.getItem("id"),
-    authorization: `Bearer ${localStorage.getItem("token")}`,
-  };
 
   const logout = () => {
     localStorage.removeItem("id");
@@ -36,12 +32,18 @@ const Sidebar = () => {
   };
 
   useEffect(() => {
+    const headers = {
+      id: localStorage.getItem("id"),
+      authorization: `Bearer ${localStorage.getItem("token")}`,
+    };
+
     const fetchUser = async () => {
       try {
+        if (!headers.id || !headers.authorization) return;
+
         const response = await axios.get(`${API_URL}/api/v1/me`, { headers });
         console.log("User API Response:", response.data);
 
-        // ✅ safely set Data based on API format
         if (response.data?.user) {
           setData(response.data.user);
         } else {
@@ -52,10 +54,8 @@ const Sidebar = () => {
       }
     };
 
-    if (headers.id && headers.authorization) {
-      fetchUser();
-    }
-  }, []);
+    fetchUser();
+  }, []); // ✅ No ESLint warning now
 
   return (
     <>
