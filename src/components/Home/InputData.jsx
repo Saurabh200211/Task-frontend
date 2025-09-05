@@ -17,8 +17,8 @@ const InputData = ({ InputDiv, setInputDiv, UpdatedData, setUpdatedData, fetchTa
   }, [UpdatedData]);
 
   const headers = {
-    id: localStorage.getItem("id"), // ✅ changed to match backend (`id` not `userId`)
-    authorization: `Bearer ${localStorage.getItem("token")}`, // ✅ consistent with Cards.js
+    id: localStorage.getItem("id"), // ✅ match backend
+    authorization: `Bearer ${localStorage.getItem("token")}`,
   };
 
   const change = (e) => {
@@ -40,8 +40,8 @@ const InputData = ({ InputDiv, setInputDiv, UpdatedData, setUpdatedData, fetchTa
     }
     try {
       await axios.post(
-        `${API_URL}/api/v2/create-task`, // ✅ dynamic URL
-        { title: Data.title, description: Data.desc },
+        `${API_URL}/api/v2/create-task`,
+        { title: Data.title, desc: Data.desc }, // ✅ FIXED: use `desc`
         { headers }
       );
 
@@ -60,8 +60,8 @@ const InputData = ({ InputDiv, setInputDiv, UpdatedData, setUpdatedData, fetchTa
     }
     try {
       await axios.put(
-        `${API_URL}/api/v2/update-task/${UpdatedData.id}`, // ✅ dynamic URL
-        { title: Data.title, description: Data.desc },
+        `${API_URL}/api/v2/update-task/${UpdatedData.id}`,
+        { title: Data.title, desc: Data.desc }, // ✅ FIXED: use `desc`
         { headers }
       );
 

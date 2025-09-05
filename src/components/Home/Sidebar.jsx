@@ -12,7 +12,7 @@ const Sidebar = () => {
   const dispatch = useDispatch();
   const history = useNavigate();
   const [Data, setData] = useState();
-  const [isOpen, setIsOpen] = useState(false); // ✅ toggle for mobile sidebar
+  const [isOpen, setIsOpen] = useState(false);
 
   const API_URL = process.env.REACT_APP_API_URL;
 
@@ -38,8 +38,9 @@ const Sidebar = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await axios.get(`${API_URL}/api/v2/get-all-tasks`, { headers });
-        setData(response.data.data);
+        // ✅ use dedicated user endpoint instead of tasks
+        const response = await axios.get(`${API_URL}/api/v1/me`, { headers });
+        setData(response.data);
       } catch (err) {
         console.error("Sidebar fetch error:", err.response?.data || err.message);
       }
@@ -73,7 +74,8 @@ const Sidebar = () => {
           <div className="mb-4">
             <h2 className="text-xl font-semibold">{Data.username}</h2>
             <h4 className="my-1 text-gray-400">{Data.email}</h4>
-            <hr className="border-gray-600" />
+            <p className="text-gray-500 text-sm">Total tasks: {Data.tasks?.length || 0}</p>
+            <hr className="border-gray-600 mt-2" />
           </div>
         )}
 
@@ -83,7 +85,7 @@ const Sidebar = () => {
               to={item.link}
               key={i}
               className="flex items-center gap-2 hover:bg-gray-700 p-2 rounded transition-all duration-300"
-              onClick={() => setIsOpen(false)} // close on mobile click
+              onClick={() => setIsOpen(false)}
             >
               {item.icon} {item.title}
             </Link>
