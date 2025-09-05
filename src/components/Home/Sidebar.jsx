@@ -38,9 +38,15 @@ const Sidebar = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        // ✅ use dedicated user endpoint instead of tasks
         const response = await axios.get(`${API_URL}/api/v1/me`, { headers });
-        setData(response.data);
+        console.log("User API Response:", response.data);
+
+        // ✅ safely set Data based on API format
+        if (response.data?.user) {
+          setData(response.data.user);
+        } else {
+          setData(response.data || {});
+        }
       } catch (err) {
         console.error("Sidebar fetch error:", err.response?.data || err.message);
       }
@@ -66,7 +72,7 @@ const Sidebar = () => {
 
       {/* Sidebar */}
       <div
-        className={`fixed top-0 left-0 h-full bg-gray-800 text-white p-4 transition-transform duration-300
+        className={`fixed top-0 left-0 h-full bg-gray-800 text-white p-4 transition-transform duration-300 z-50
         ${isOpen ? "translate-x-0" : "-translate-x-full"} 
         md:translate-x-0 md:w-64`}
       >
