@@ -26,7 +26,17 @@ const AllTasks = () => {
       const response = await axios.get(`${API_URL}/api/v2/get-all-tasks`, {
         headers,
       });
-      setData(response.data.data);
+
+      console.log("Tasks API response:", response.data); // 🔍 debug log
+
+      // ✅ safely extract tasks
+      if (response.data?.data) {
+        setData(response.data.data);
+      } else if (response.data?.tasks) {
+        setData(response.data.tasks);
+      } else {
+        setData(response.data);
+      }
     } catch (err) {
       console.error("Fetch tasks error:", err.response?.data || err.message);
     }
@@ -59,7 +69,7 @@ const AllTasks = () => {
           <Cards
             home={"true"}
             setInputDiv={setInputDiv}
-            data={Data.tasks || Data}
+            data={Array.isArray(Data) ? Data : Data?.tasks || []}
             setUpdatedData={setUpdatedData}
           />
         )}

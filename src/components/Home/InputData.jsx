@@ -3,21 +3,23 @@ import { RxCross2 } from "react-icons/rx";
 import axios from "axios";
 
 const InputData = ({ InputDiv, setInputDiv, UpdatedData, setUpdatedData, fetchTasks }) => {
+  // always have a safe data shape
   const [Data, setData] = useState({ title: "", desc: "" });
+  const API_URL = process.env.REACT_APP_API_URL;
 
-  const API_URL = process.env.REACT_APP_API_URL; // ✅ use env base URL
+  // make a safe copy so we never read .id from undefined
+  const safeUpdated = UpdatedData || { id: "", title: "", desc: "" };
 
   useEffect(() => {
-    if (UpdatedData) {
-      setData({
-        title: UpdatedData.title || "",
-        desc: UpdatedData.desc || "",
-      });
-    }
-  }, [UpdatedData]);
+    // fill inputs when UpdatedData changes
+    setData({
+      title: safeUpdated.title || "",
+      desc: safeUpdated.desc || "",
+    });
+  }, [safeUpdated]);
 
   const headers = {
-    id: localStorage.getItem("id"), // ✅ match backend
+    id: localStorage.getItem("id"),
     authorization: `Bearer ${localStorage.getItem("token")}`,
   };
 
@@ -30,7 +32,7 @@ const InputData = ({ InputDiv, setInputDiv, UpdatedData, setUpdatedData, fetchTa
   const closeModal = () => {
     setInputDiv("hidden");
     setData({ title: "", desc: "" });
-    setUpdatedData({ id: "", title: "", desc: "" });
+    setUpdatedData?.({ id: "", title: "", desc: "" });
   };
 
   const submitData = async () => {
@@ -38,18 +40,32 @@ const InputData = ({ InputDiv, setInputDiv, UpdatedData, setUpdatedData, fetchTa
       alert("All fields are required");
       return;
     }
+
     try {
-      await axios.post(
+      const response = await axios.post(
         `${API_URL}/api/v2/create-task`,
-        { title: Data.title, desc: Data.desc }, // ✅ FIXED: use `desc`
+        { title: Data.title, desc: Data.desc },
         { headers }
       );
 
+      // optionally check server response for success flag
+      if (response?.data?.success === false) {
+        const msg = response?.data?.message || "Failed to create task";
+        alert(msg);
+        return;
+      }
+
       closeModal();
-      fetchTasks();
+      fetchTasks?.();
     } catch (err) {
-      console.error("API Error:", err.response?.data || err.message);
-      alert("Failed to create task. Please try again.");
+      // show a specific message if server provides it
+      const serverMsg =
+        err?.response?.data?.message ||
+        (typeof err?.response?.data === "string" ? err.response.data : null) ||
+        err?.message ||
+        "Failed to create task. Please try again.";
+      console.error("API Error (create):", err?.response?.data || err?.message || err);
+      alert(serverMsg);
     }
   };
 
@@ -58,29 +74,59 @@ const InputData = ({ InputDiv, setInputDiv, UpdatedData, setUpdatedData, fetchTa
       alert("All fields are required");
       return;
     }
+
+    if (!safeUpdated.id) {
+      alert("No task selected to update.");
+      return;
+    }
+
     try {
-      await axios.put(
-        `${API_URL}/api/v2/update-task/${UpdatedData.id}`,
-        { title: Data.title, desc: Data.desc }, // ✅ FIXED: use `desc`
+      const response = await axios.put(
+        `${API_URL}/api/v2/update-task/${safeUpdated.id}`,
+        { title: Data.title, desc: Data.desc },
         { headers }
       );
 
+      if (response?.data?.success === false) {
+        const msg = response?.data?.message || "Failed to update task";
+        alert(msg);
+        return;
+      }
+
       closeModal();
-      fetchTasks();
+      fetchTasks?.();
     } catch (err) {
-      console.error("API Error:", err.response?.data || err.message);
-      alert("Failed to update task. Please try again.");
+      const serverMsg =
+        err?.response?.data?.message ||
+        (typeof err?.response?.data === "string" ? err.response.data : null) ||
+        err?.message ||
+        "Failed to update task. Please try again.";
+      console.error("API Error (update):", err?.response?.data || err?.message || err);
+      alert(serverMsg);
     }
   };
 
   return (
     <>
-      <div className={`${InputDiv} top-0 left-0 h-screen w-full bg-gray-800 opacity-80 fixed`}></div>
+      {/* overlay - click to close */}
+      <div
+        onClick={closeModal}
+        className={`${InputDiv} top-0 left-0 h-screen w-full bg-gray-800 opacity-80 fixed`}
+      />
 
-      <div className={`${InputDiv} top-0 left-0 flex items-center justify-center h-screen w-full fixed`}>
-        <div className="w-2/6 bg-gray-900 p-4 rounded">
+      {/* modal */}
+      <div
+        className={`${InputDiv} top-0 left-0 flex items-center justify-center h-screen w-full fixed`}
+        aria-hidden={InputDiv === "hidden"}
+      >
+        <div className="w-11/12 sm:w-3/4 md:w-2/4 lg:w-2/6 bg-gray-900 p-4 rounded shadow-lg">
           <div className="flex justify-end">
-            <button className="text-2xl" onClick={closeModal}>
+            <button
+              type="button"
+              aria-label="Close"
+              className="text-2xl text-white"
+              onClick={closeModal}
+            >
               <RxCross2 />
             </button>
           </div>
@@ -89,7 +135,7 @@ const InputData = ({ InputDiv, setInputDiv, UpdatedData, setUpdatedData, fetchTa
             type="text"
             placeholder="Title"
             name="title"
-            className="px-3 py-2 rounded w-full bg-gray-700 my-3 text-white"
+            className="px-3 py-2 rounded w-full bg-gray-700 my-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
             value={Data.title}
             onChange={change}
           />
@@ -98,21 +144,23 @@ const InputData = ({ InputDiv, setInputDiv, UpdatedData, setUpdatedData, fetchTa
             name="desc"
             rows="5"
             placeholder="Description..."
-            className="px-3 py-2 rounded w-full bg-gray-700 my-3 text-white"
+            className="px-3 py-2 rounded w-full bg-gray-700 my-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
             value={Data.desc}
             onChange={change}
           />
 
-          {UpdatedData.id === "" ? (
+          {!safeUpdated.id ? (
             <button
-              className="px-3 py-2 bg-blue-400 hover:bg-blue-500 rounded text-black text-xl font-semibold focus:outline-none focus:ring-2 focus:ring-blue-300"
+              type="button"
+              className="px-3 py-2 bg-blue-400 hover:bg-blue-500 rounded w-full text-black text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-blue-300"
               onClick={submitData}
             >
               Submit
             </button>
           ) : (
             <button
-              className="px-3 py-2 bg-blue-400 hover:bg-blue-500 rounded text-black text-xl font-semibold focus:outline-none focus:ring-2 focus:ring-blue-300"
+              type="button"
+              className="px-3 py-2 bg-blue-400 hover:bg-blue-500 rounded w-full text-black text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-blue-300"
               onClick={UpdateTask}
             >
               Update

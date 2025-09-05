@@ -28,7 +28,7 @@ const Home = () => {
       {/* ✅ Sidebar Drawer (Mobile) */}
       {isOpen && (
         <div className="sm:hidden fixed inset-0 bg-black bg-opacity-60 z-40">
-          <div className="absolute left-0 top-0 w-64 h-full bg-gray-900 border-r border-gray-600 p-4 flex flex-col justify-between z-50">
+          <div className="absolute left-0 top-0 w-68 h-full bg-gray-900 border-r border-gray-600 p-4 flex flex-col justify-between z-50">
             <Sidebar />
             <button
               onClick={() => setIsOpen(false)}
